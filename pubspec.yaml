@@ -9,6 +9,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  google_fonts: ^5.0.0
+  flutter_widget_from_html: ^0.15.2
 
 dev_dependencies:
   flutter_test:
@@ -17,3 +19,13 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/images/escudo_ucss.png
+    - assets/images/logo_ucss.png
+    - assets/images/nexucss.png
+    - assets/images/logo_nexucss.png
+    - assets/images/icon_user.png
+    - assets/images/icon_lupa.png
+    - assets/images/icon_arrow_down.png
+    - assets/images/icon_fac.png
+    - assets/images/icon_alum.png
