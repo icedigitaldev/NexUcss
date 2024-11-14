@@ -4,7 +4,8 @@ import 'package:nexucss/views/home_view.dart';
 import 'package:nexucss/views/welcome_view.dart';
 import 'package:nexucss/widgets/pages/profile/profile_option.dart';
 
-import '../../views/condition_view.dart';
+import 'package:nexucss/views/condition_view.dart';
+import 'package:nexucss/views/coordinadores_view.dart';
 
 class ProfilePage extends StatelessWidget {
   @override
@@ -109,7 +110,9 @@ class ProfilePage extends StatelessWidget {
                     icon: Icons.group_outlined,
                     title: 'Coordinadores',
                     onTap: () {
-                      // Navegar a la página de Coordinadores
+                      Navigator.of(context).push(
+                        MaterialPageRoute(builder: (context) => CoordinadoresView()),
+                      );
                     },
                   ),
                   Divider(),
