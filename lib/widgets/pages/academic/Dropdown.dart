@@ -7,6 +7,7 @@ class Dropdown extends StatelessWidget {
   final ValueChanged<String?> onChanged;
 
   const Dropdown({
+    super.key,
     required this.selectedValue,
     required this.items,
     required this.onChanged,
@@ -48,16 +49,20 @@ class Dropdown extends StatelessWidget {
               color: Colors.black,
             ),
             onChanged: onChanged,
+            dropdownColor: Colors.white, // Fondo blanco para las opciones del menú desplegable
             items: items.map<DropdownMenuItem<String>>((String value) {
               return DropdownMenuItem<String>(
                 value: value,
-                child: Text(
-                  value,
-                  style: GoogleFonts.poppins(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      letterSpacing: -0.35,
-                      fontStyle: FontStyle.normal),
+                child: Container(
+                  color: Colors.white, // Asegura que cada opción tenga un fondo blanco
+                  child: Text(
+                    value,
+                    style: GoogleFonts.poppins(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        letterSpacing: -0.35,
+                        fontStyle: FontStyle.normal),
+                  ),
                 ),
               );
             }).toList(),

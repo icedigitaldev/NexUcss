@@ -1,16 +1,7 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-
 import 'home_view.dart';
 
-void main() {
-  runApp(const MaterialApp(
-    debugShowCheckedModeBanner: false,
-    color: Colors.white,
-    home: Scaffold(body: PincodeView()),
-  ));
-}
 
 // Pantalla principal que contiene el campo para ingresar el PIN
 class PincodeView extends StatefulWidget {
@@ -48,16 +39,12 @@ class _PinCodeWidgetState extends State<PincodeView> {
     }
   }
 
-
   //Función para validar PIN
   void validatePin() {
     if (enteredPin == "1234") {
       // Si el PIN es correcto, redirige a la vista HomeView
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const HomeView()),
-      );
-    } else {
+      Navigator.pushNamed(context, '/home');
+      } else {
       // Si el PIN es incorrecto, muestra un mensaje Toast
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -165,7 +152,7 @@ class _PinCodeWidgetState extends State<PincodeView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white, // Fondo blanco de la pantalla
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.only(top: 50), // Espaciado superior
@@ -198,10 +185,10 @@ class _PinCodeWidgetState extends State<PincodeView> {
                   height: 30,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(100), // Bordes circulares
-                    border: Border.all(color: const Color(0xffcebfbf), width: 1),
+                    border: Border.all(color: Colors.grey[400]!, width: 1), // Borde gris claro
                     color: index < enteredPin.length // Si el índice es menor que la longitud del PIN, lo llena
-                        ? CupertinoColors.activeBlue
-                        : CupertinoColors.white,
+                        ? Theme.of(context).colorScheme.primary // Usar color primario del tema Material
+                        : Theme.of(context).colorScheme.background, // Usar color de fondo del tema Material
                   ),
                   child: index < enteredPin.length // Si hay un dígito en esa posición, muestra un círculo
                       ? const Center(

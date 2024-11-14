@@ -1,12 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:nexucss/views/welcome_view.dart'; // Asegúrate de tener esta pantalla o crea el archivo con la pantalla WelcomeView
+import 'package:nexucss/views/condition_view.dart';
+import '../views/pincode_view.dart';
+import '../views/welcome_view.dart';
+import '../views/home_view.dart ';
 
 class AppRoutes {
-  static const String welcomeScreen = '/welcome_view';
 
-  static const String initialRoute = welcomeScreen;
+  static const String welcomeView = '/welcome';
+  static const String pincodeView = '/pincode';
+  static const String homeView = '/home';
+  static const String conditionView = '/condition';
+
+  static const String initialRoute = welcomeView;
 
   static Map<String, WidgetBuilder> routes = {
-    welcomeScreen: (context) => const WelcomeView(),
+    welcomeView: (context) => const WelcomeView(),
+    pincodeView: (context) => const PincodeView(),
+    homeView: (context) => const HomeView(),
+    conditionView: (context) => const ConditionView(),
   };
 }

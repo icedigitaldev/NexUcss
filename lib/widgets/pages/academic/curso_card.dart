@@ -9,7 +9,7 @@ class CursoCard extends StatelessWidget {
   final String facultad;
   final int alumnos;
 
-  CursoCard({
+  const CursoCard({super.key, 
     required this.seccion,
     required this.aula,
     required this.curso,
@@ -25,7 +25,7 @@ class CursoCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xfff7f9fb),
         borderRadius: BorderRadius.circular(16),
-        boxShadow: const [BoxShadow(color: const Color(0x3f000000), offset: Offset(0, 0), blurRadius: 4),],
+        boxShadow: const [BoxShadow(color: Color(0x3f000000), offset: Offset(0, 0), blurRadius: 4),],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

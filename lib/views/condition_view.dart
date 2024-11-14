@@ -3,62 +3,87 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 
 class ConditionView extends StatelessWidget {
+  final bool showBackButton;
+
+  const ConditionView({super.key, this.showBackButton = true});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: PreferredSize(
-        preferredSize: Size.fromHeight(64),
+        preferredSize: const Size.fromHeight(64),
         child: Container(
-          decoration: BoxDecoration(
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: const BoxDecoration(
+            color: Colors.white,
             boxShadow: [
               BoxShadow(
-                color: const Color(0x3f000000),
+                color: Color(0x3f000000),
                 offset: Offset(0, 4),
                 blurRadius: 4,
               ),
             ],
           ),
-          child: AppBar(
-            automaticallyImplyLeading: false,
-            centerTitle: true,
-            backgroundColor: Colors.white,
-            title: Center(
-              child: Text(
+          child: SafeArea(
+            child: AppBar(
+              automaticallyImplyLeading: showBackButton,
+              backgroundColor: Colors.white,
+              elevation: 0,
+              scrolledUnderElevation: 0,
+              centerTitle: true,
+              leading: showBackButton
+                  ? GestureDetector(
+                onTap: () => Navigator.of(context).pop(),
+                child: Container(
+                  width: 50,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Color(0xFFEef1F4),
+                  ),
+                  child: Center(
+                    child: Icon(
+                      Icons.arrow_back,
+                      color: Color(0xFF545F71),
+                      size: 20,
+                    ),
+                  ),
+                ),
+              )
+                  : null,
+              title: Text(
                 'Términos y Condiciones',
                 style: GoogleFonts.poppins(
-                  fontSize: 22,
+                  fontSize: 18,
                   fontWeight: FontWeight.bold,
                   color: const Color(0xff545f70),
                 ),
               ),
             ),
-            elevation: 0,
           ),
         ),
       ),
       body: Padding(
-        padding: const EdgeInsets.only(left: 20, right: 20,  bottom: 10),
-
+        padding: const EdgeInsets.only(left: 20, right: 20, bottom: 10),
         child: Stack(
           children: [
             Positioned.fill(
-
               child: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SizedBox(height: 25),
+                    const SizedBox(height: 25),
                     Text(
                       'Términos y Condiciones del Aplicativo de Control de Docentes',
-                        textAlign: TextAlign.left,
+                      textAlign: TextAlign.left,
                       style: GoogleFonts.poppins(
                         fontSize: 26,
                         fontWeight: FontWeight.bold,
-                      )
+                      ),
                     ),
-                    SizedBox(height: 16),
-                    HtmlWidget(
+                    const SizedBox(height: 16),
+                    const HtmlWidget(
                       ''' 
                         <div style="font-family: poppins; line-height: 30px;">
                           <p style="font-size: 16px; font-weight: 500; ">Última actualización: 2-10-2024</p>
@@ -130,8 +155,7 @@ class ConditionView extends StatelessWidget {
                             <p style="font-size: 16px; font-weight: 400;text-align: justify;" >
                               Para cualquier duda, consulta o incidencia relacionada con el funcionamiento del Aplicativo, el personal autorizado de la Universidad deberá ponerse en contacto exclusivamente con los desarrolladores a través de los siguientes correos electrónicos:
                               <ul style="font-size: 16px; font-weight: 400;">
-                                <li>José Jarlin Chiquin: dreix@gmail.com</li>
-                                <li>Jhordy Mondragón: jhordev.pe@gmail.com</li>
+                                <li>iCe-Digital: sopport@icedigital.pe</li>
                                 <li>William Calderón: william@email.com</li>
                               </ul>
                               <p style="font-family: Poppins; font-size: 16px; font-weight: 400;text-align: justify;">
@@ -142,55 +166,32 @@ class ConditionView extends StatelessWidget {
                         </div>
                        ''',
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 20),
                     Padding(
-                      padding: const EdgeInsets.only(bottom: 20.0),
-                     child: GestureDetector(
+                      padding: const EdgeInsets.only(bottom: 30.0),
+                      child: GestureDetector(
                         onTap: () {
                           Navigator.pop(context);
                         },
-                        child:Center(
+                        child: Center(
                           child: Container(
-                            color: Colors.white,
-                            child: SizedBox(
-                              height: 50,
-                              width: 100,
-                              child: Stack(
-                                children: [
-                                  Positioned(
-                                    left: 0,
-                                    right: 0,
-                                    top: 0,
-                                    bottom: 0,
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        border: Border.all(color: const Color(0xff9aa5b6), width: 2),
-                                        borderRadius: BorderRadius.circular(24),
-                                      ),
-                                      child: Padding(
-                                        padding: const EdgeInsets.only(left: 16, top: 8, right: 16, bottom: 8),
-                                        child: Row(
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          mainAxisSize: MainAxisSize.max,
-                                          crossAxisAlignment: CrossAxisAlignment.center,
-                                          children: [
-                                            Text(
-                                              'Aceptar',
-                                              style: GoogleFonts.poppins(
-                                                fontSize: 14,
-                                                color: const Color(0xff545f70),
-                                                fontWeight: FontWeight.w600,
-                                              ),
-                                              maxLines: 9999,
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
+                            height: 50,
+                            width: 100,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              border: Border.all(color: const Color(0xff9aa5b6), width: 2),
+                              borderRadius: BorderRadius.circular(24),
+                            ),
+                            alignment: Alignment.center,
+                            child: Text(
+                              'Aceptar',
+                              style: GoogleFonts.poppins(
+                                fontSize: 14,
+                                color: const Color(0xff545f70),
+                                fontWeight: FontWeight.w600,
                               ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ),
@@ -205,5 +206,4 @@ class ConditionView extends StatelessWidget {
       ),
     );
   }
-
 }

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../widgets/dropdown.dart'; // Asegúrate de importar correctamente
+import 'package:nexucss/widgets/pages/academic/Dropdown.dart';
+import 'Dropdown.dart'; // Asegúrate de importar correctamente
 
 class TurnoSelector extends StatefulWidget {
-  const TurnoSelector({Key? key}) : super(key: key);
+  const TurnoSelector({super.key});
 
   @override
   _TurnoSelectorState createState() => _TurnoSelectorState();
@@ -31,7 +32,7 @@ class _TurnoSelectorState extends State<TurnoSelector> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 10),
       child: Container(
         height: 48,
         decoration: BoxDecoration(

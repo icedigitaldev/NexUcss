@@ -16,6 +16,9 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^4.0.0
+  intl: ^0.17.0
+  file_picker: ^5.2.2
+  excel: ^2.0.7
 
 flutter:
   uses-material-design: true
@@ -29,3 +32,11 @@ flutter:
     - assets/images/icon_arrow_down.png
     - assets/images/icon_fac.png
     - assets/images/icon_alum.png
+    - assets/images/tacho.png
+    - assets/images/reloj.png
+    - assets/images/sheck.png
+    - assets/images/excelUp.png
+    - assets/images/excelUpDarck.png
+    - assets/images/excelDown.png
+    - assets/images/excelDownDarck.png
+    - assets/images/profile_image.png

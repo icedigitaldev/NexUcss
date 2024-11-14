@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+
 class HorarioSelector extends StatelessWidget {
+  const HorarioSelector({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
           border: Border(
-              bottom: BorderSide(color: const Color(0xff9ba5b7), width: 2))),
+              bottom: BorderSide(color: Color(0xff9ba5b7), width: 2))),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 0),
         child: SingleChildScrollView(
