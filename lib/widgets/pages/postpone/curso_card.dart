@@ -8,7 +8,6 @@ class CursoCard extends StatelessWidget {
   final String estado;
   final String curso;
   final String profesor;
-  final String facultad;
   final int alumnos;
 
   const CursoCard({super.key,
@@ -18,7 +17,6 @@ class CursoCard extends StatelessWidget {
     required this.estado,
     required this.curso,
     required this.profesor,
-    required this.facultad,
     required this.alumnos,
   });
 
@@ -29,10 +27,10 @@ class CursoCard extends StatelessWidget {
       case 'pendiente':
         estadoColor = const Color(0xff565471);
         break;
-      case 'cancelado':
+      case 'cancelada':
         estadoColor = const Color(0xffc10c0c);
         break;
-      case 'recuperado':
+      case 'recuperada':
         estadoColor = const Color(0xff118615);
         break;
       default:

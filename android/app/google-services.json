@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "402400598490",
+    "project_id": "nexucss",
+    "storage_bucket": "nexucss.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:402400598490:android:fb8beac0b48665bf1a88e3",
+        "android_client_info": {
+          "package_name": "com.icedigital.nexucss"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBCJvyr4uooUYNN6FkV-WhGCNaj4h9BvFE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

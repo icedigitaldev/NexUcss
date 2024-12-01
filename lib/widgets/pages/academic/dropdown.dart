@@ -16,7 +16,7 @@ class Dropdown extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 174, // Ancho fijo de 174px
+      width: 140, // Ancho fijo de 174px
       decoration: BoxDecoration(
         color: Colors.white, // Fondo blanco
         border: Border.all(color: Colors.grey, width: 1), // Borde gris

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:nexucss/views/condition_view.dart';
-import 'package:nexucss/views/pincode_view.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../utils/logger.dart';
 
 const primaryColor = Color(0xff545f70);
 const secondaryColor = Colors.white;
@@ -16,6 +16,20 @@ class WelcomeView extends StatefulWidget {
 
 class _WelcomeViewState extends State<WelcomeView> {
   bool isChecked = false;
+
+  Future<void> _saveTermsAndNavigate() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('terms_accepted', true);
+      AppLogger.log('Términos aceptados correctamente', prefix: 'WELCOME:');
+
+      if (mounted) {
+        Navigator.pushReplacementNamed(context, '/pincode');
+      }
+    } catch (e) {
+      AppLogger.log('Error al guardar términos: $e', prefix: 'ERROR:');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,12 +74,7 @@ class _WelcomeViewState extends State<WelcomeView> {
                 ),
                 TextButton(
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ConditionView(showBackButton: false),
-                      ),
-                    );
+                    Navigator.pushNamed(context, '/condition');
                   },
                   child: const Text(
                     'Términos y condiciones',
@@ -79,16 +88,7 @@ class _WelcomeViewState extends State<WelcomeView> {
             ),
             const SizedBox(height: 19),
             ElevatedButton(
-              onPressed: isChecked
-                  ? () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const PincodeView(),
-                  ),
-                );
-              }
-                  : null,
+              onPressed: isChecked ? _saveTermsAndNavigate : null,
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(horizontal: 38, vertical: 16),
                 backgroundColor: const Color(0xFF545F71),

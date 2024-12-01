@@ -1,32 +1,56 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:nexucss/widgets/pages/academic/Dropdown.dart';
-import 'Dropdown.dart'; // Asegúrate de importar correctamente
+import 'package:intl/intl.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'dropdown.dart';
 
 class TurnoSelector extends StatefulWidget {
-  const TurnoSelector({super.key});
+  final Function(String) onTurnoChanged;
+
+  const TurnoSelector({super.key, required this.onTurnoChanged});
 
   @override
   _TurnoSelectorState createState() => _TurnoSelectorState();
 }
 
 class _TurnoSelectorState extends State<TurnoSelector> {
-  // Lista de opciones predefinidas del Dropdown
   List<String> items = [
-    'Turno',
     'Mañana',
     'Tarde',
-    'Noche', // He agregado "Noche" a la lista
+    'Noche',
   ];
 
-
-  // Valor seleccionado por defecto (debe estar en la lista)
   String? selectedValue;
+  String formattedDate = '';
 
   @override
   void initState() {
     super.initState();
-    selectedValue = items[0]; // Inicializamos el valor seleccionado por defecto al primero en la lista
+    selectedValue = 'Mañana';
+    _initializeDate();
+    Future.microtask(() {
+      if (mounted) {
+        widget.onTurnoChanged(selectedValue!);
+      }
+    });
+  }
+
+  Future<void> _initializeDate() async {
+    await initializeDateFormatting('es_ES', null);
+    if (mounted) {
+      setState(() {
+        formattedDate = _getFormattedDate();
+      });
+    }
+  }
+
+  String _getFormattedDate() {
+    final now = DateTime.now();
+    final formatter = DateFormat('EEEE dd/MM/yy', 'es_ES');
+    String formatted = formatter.format(now);
+    String dayName = formatted.split(' ')[0];
+    dayName = dayName[0].toUpperCase() + dayName.substring(1);
+    return '$dayName ${formatted.split(' ')[1]}';
   }
 
   @override
@@ -45,7 +69,7 @@ class _TurnoSelectorState extends State<TurnoSelector> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Lunes 20/09/24',
+                formattedDate,
                 style: GoogleFonts.poppins(
                   fontSize: 18,
                   fontStyle: FontStyle.normal,
@@ -54,13 +78,13 @@ class _TurnoSelectorState extends State<TurnoSelector> {
                   letterSpacing: -0.36,
                 ),
               ),
-              // Utiliza el widget `DropdownTurno`
               Dropdown(
                 selectedValue: selectedValue,
                 items: items,
                 onChanged: (newValue) {
                   setState(() {
-                    selectedValue = newValue; // Actualiza el valor seleccionado
+                    selectedValue = newValue;
+                    widget.onTurnoChanged(newValue!);
                   });
                 },
               ),

@@ -1,7 +1,7 @@
 name: nexucss
-description: "A new Flutter project."
+description: " "
 publish_to: 'none'
-version: 0.1.0
+version: 1.0.2+3
 
 environment:
   sdk: ^3.5.3
@@ -11,33 +11,22 @@ dependencies:
     sdk: flutter
   google_fonts: ^5.0.0
   flutter_widget_from_html: ^0.15.2
+  flutter_riverpod: ^2.6.1
+  cloud_firestore: ^5.5.0
+  intl: ^0.19.0
+  table_calendar: ^3.1.2
+  syncfusion_flutter_xlsio: ^27.2.4
+  shared_preferences: ^2.3.3
+  url_launcher: ^6.3.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^4.0.0
-  intl: ^0.17.0
   file_picker: ^5.2.2
   excel: ^2.0.7
 
 flutter:
   uses-material-design: true
   assets:
-    - assets/images/escudo_ucss.png
-    - assets/images/logo_ucss.png
-    - assets/images/nexucss.png
-    - assets/images/logo_nexucss.png
-    - assets/images/icon_user.png
-    - assets/images/icon_lupa.png
-    - assets/images/icon_arrow_down.png
-    - assets/images/icon_fac.png
-    - assets/images/icon_alum.png
-    - assets/images/tacho.png
-    - assets/images/reloj.png
-    - assets/images/sheck.png
-    - assets/images/excelUp.png
-    - assets/images/excelUpDarck.png
-    - assets/images/excelDown.png
-    - assets/images/excelDownDarck.png
-    - assets/images/profile_image.png
-    - assets/images/coordinador_image.png
+    - assets/images/

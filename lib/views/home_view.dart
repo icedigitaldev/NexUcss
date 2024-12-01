@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../components/pages/academic_schedule_page.dart';
 import '../components/pages/postpone_schedules_page.dart';
 import '../components/pages/reports_schedule_page.dart';
-import '../theme/custom_colors.dart';
 import '../widgets/pages/postpone/calendar_filter.dart';
-import 'package:nexucss/components/pages/perfil_page.dart';
-
+import '../controllers/curso_controller.dart';
+import 'profile_view.dart';
 
 class HomeView extends StatefulWidget {
   final int initialIndex;
@@ -19,9 +19,10 @@ class HomeView extends StatefulWidget {
 class _HomeViewState extends State<HomeView> {
   late int _selectedIndex;
 
+  @override
   void initState() {
     super.initState();
-    _selectedIndex = widget.initialIndex; // Usa el índice inicial proporcionado
+    _selectedIndex = widget.initialIndex;
   }
 
   static const List<Widget> _views = [
@@ -30,7 +31,6 @@ class _HomeViewState extends State<HomeView> {
     ReportsSchedulePage(),
   ];
 
-  // Definir los títulos correspondientes para cada vista
   static const List<String> _titles = [
     'Hola, Angie',
     'Aplazados',
@@ -43,10 +43,9 @@ class _HomeViewState extends State<HomeView> {
     });
   }
 
-  // Función para navegar directamente a PostponeSchedulesPage
   void navigateToPostponeSchedulesPage() {
     setState(() {
-      _selectedIndex = 1; // Cambia el índice al de PostponeSchedulesPage
+      _selectedIndex = 1;
     });
   }
 
@@ -63,10 +62,27 @@ class _HomeViewState extends State<HomeView> {
   }
 }
 
-class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
+class CustomAppBar extends ConsumerStatefulWidget implements PreferredSizeWidget {
   final String title;
 
   const CustomAppBar({super.key, required this.title});
+
+  @override
+  Size get preferredSize => const Size.fromHeight(64);
+
+  @override
+  ConsumerState<CustomAppBar> createState() => _CustomAppBarState();
+}
+
+class _CustomAppBarState extends ConsumerState<CustomAppBar> {
+  final TextEditingController _searchController = TextEditingController();
+  bool isSearching = false;
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -86,16 +102,39 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           automaticallyImplyLeading: false,
           backgroundColor: Colors.white,
           scrolledUnderElevation: 0,
-          title: Padding(
+          title: isSearching && widget.title == 'Hola, Angie'
+              ? TextField(
+            controller: _searchController,
+            autofocus: true,
+            decoration: InputDecoration(
+              hintText: 'Buscar curso, docente, facultad...',
+              border: InputBorder.none,
+              hintStyle: GoogleFonts.poppins(
+                fontSize: 16,
+                color: Colors.grey,
+              ),
+            ),
+            style: GoogleFonts.poppins(
+              fontSize: 16,
+              color: const Color(0xff545f70),
+            ),
+            onChanged: (value) {
+              ref.read(searchControllerProvider.notifier).setSearchQuery(value);
+            },
+          )
+              : Padding(
             padding: const EdgeInsets.only(left: 10),
             child: Row(
               children: [
-                if (title == 'Hola, Angie' || title == 'Aplazados' || title == 'Reportes')
+                if (widget.title == 'Hola, Bienvenido' ||
+                    widget.title == 'Aplazados' ||
+                    widget.title == 'Reportes')
                   GestureDetector(
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => ProfilePage()),
+                        MaterialPageRoute(
+                            builder: (context) => const ProfileView()),
                       );
                     },
                     child: Image.asset(
@@ -104,10 +143,12 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                       width: 35,
                     ),
                   ),
-                if (title == 'Hola, Angie' || title == 'Aplazados' || title == 'Reportes')
+                if (widget.title == 'Hola, Bienvenido' ||
+                    widget.title == 'Aplazados' ||
+                    widget.title == 'Reportes')
                   const SizedBox(width: 7),
                 Text(
-                  title,
+                  widget.title,
                   style: GoogleFonts.poppins(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -120,21 +161,35 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           ),
           elevation: 0,
           actions: [
-            if (title == 'Hola, Angie')
+            if (widget.title == 'Hola, Bienvenido')
               Padding(
                 padding: const EdgeInsets.only(right: 10),
                 child: IconButton(
-                  icon: Image.asset(
+                  icon: isSearching
+                      ? const Icon(
+                    Icons.close,
+                    color: Color(0xff545f70),
+                    size: 30,
+                  )
+                      : Image.asset(
                     'assets/images/icon_lupa.png',
                     width: 35,
                     height: 35,
                   ),
                   onPressed: () {
-                    print("Buscar presionado");
+                    setState(() {
+                      if (isSearching) {
+                        isSearching = false;
+                        _searchController.clear();
+                        ref.read(searchControllerProvider.notifier).clearSearch();
+                      } else {
+                        isSearching = true;
+                      }
+                    });
                   },
                 ),
               ),
-            if (title == 'Aplazados')
+            if (widget.title == 'Aplazados')
               Padding(
                 padding: const EdgeInsets.only(right: 10),
                 child: IconButton(
@@ -146,13 +201,13 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                   onPressed: () {
                     showModalBottomSheet(
                       context: context,
-
                       isScrollControlled: true,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.vertical(top: Radius.circular(40)),
+                      shape: const RoundedRectangleBorder(
+                        borderRadius:
+                        BorderRadius.vertical(top: Radius.circular(40)),
                       ),
                       builder: (BuildContext context) {
-                        return CalendarWidget();
+                        return const CalendarWidget();
                       },
                     );
                   },
@@ -163,9 +218,6 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       ),
     );
   }
-
-  @override
-  Size get preferredSize => const Size.fromHeight(64);
 }
 
 class CustomBottomNavigationBar extends StatelessWidget {
@@ -180,28 +232,27 @@ class CustomBottomNavigationBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Definir los colores para los diferentes estados
-    const Color navyBlue = Color(0xFF002366); // Azul marino para seleccionados
-    const Color greyColor = Colors.grey; // Gris para no seleccionados
+    const Color navyBlue = Color(0xFF002366);
+    const Color greyColor = Colors.grey;
 
     return NavigationBarTheme(
       data: NavigationBarThemeData(
-        indicatorColor: Colors.transparent, // Quitar el indicador
+        indicatorColor: Colors.transparent,
         labelTextStyle: MaterialStateProperty.resolveWith<TextStyle>((states) {
           if (states.contains(MaterialState.selected)) {
-            return const TextStyle(color: navyBlue); // Texto azul marino si está seleccionado
+            return const TextStyle(color: navyBlue);
           }
-          return const TextStyle(color: greyColor); // Texto gris si no está seleccionado
+          return const TextStyle(color: greyColor);
         }),
         iconTheme: MaterialStateProperty.resolveWith<IconThemeData>((states) {
           if (states.contains(MaterialState.selected)) {
-            return const IconThemeData(color: navyBlue); // Ícono azul marino si está seleccionado
+            return const IconThemeData(color: navyBlue);
           }
-          return const IconThemeData(color: greyColor); // Ícono gris si no está seleccionado
+          return const IconThemeData(color: greyColor);
         }),
       ),
       child: NavigationBar(
-        backgroundColor: Colors.white, // Fondo blanco
+        backgroundColor: Colors.white,
         selectedIndex: selectedIndex,
         onDestinationSelected: onItemTapped,
         destinations: const [

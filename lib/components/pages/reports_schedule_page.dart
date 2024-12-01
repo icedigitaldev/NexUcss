@@ -1,10 +1,15 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:nexucss/components/pages/reports/ListDateTime.dart';
-import 'package:nexucss/widgets/pages/reports/date_picker_bottom_sheet.dart';
-import 'package:nexucss/widgets/pages/reports/import_excel_button.dart';
-import 'package:nexucss/widgets/pages/reports/export_excel_button.dart';
+import '../../controllers/report_download_controller.dart';
+import '../../widgets/pages/reports/date_picker_bottom_sheet.dart';
+import '../../widgets/pages/reports/export_excel_button.dart';
+import '../../widgets/pages/reports/import_excel_button.dart';
+import '../../controllers/excel_controller.dart';
+import '../../controllers/history_controller.dart';
+import '../../utils/logger.dart';
+import 'reports/list_date_time.dart';
 
 class ReportsSchedulePage extends StatefulWidget {
   const ReportsSchedulePage({super.key});
@@ -16,39 +21,197 @@ class ReportsSchedulePage extends StatefulWidget {
 class _ReportsSchedulePageState extends State<ReportsSchedulePage> {
   DateTime? startDate;
   DateTime? endDate;
+  final ExcelController _excelController = ExcelController();
+  final HistoryController _historyController = HistoryController();
+  final ReportDownloadController _reportDownloadController = ReportDownloadController();
+  bool _isProcessing = false;
+
+  List<Map<String, String>> _convertToStringMap(List<Map<String, dynamic>> dynamicList) {
+    return dynamicList.map((item) => {
+      'dateText': item['dateText']?.toString() ?? '',
+      'timeText': item['timeText']?.toString() ?? '',
+      'status': item['status']?.toString() ?? '',
+      'userName': item['userName']?.toString() ?? '',
+    }).toList();
+  }
 
   Future<void> _pickFile() async {
-    final result = await FilePicker.platform.pickFiles();
-    if (result != null) {
-      print("Archivo seleccionado: ${result.files.single.name}");
-    } else {
-      print("No se seleccionó ningún archivo");
+    try {
+      setState(() => _isProcessing = true);
+
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['xlsx', 'xls'],
+      );
+
+      if (result != null) {
+        final file = File(result.files.single.path!);
+        AppLogger.log('Procesando archivo: ${result.files.single.name}', prefix: 'EXCEL:');
+
+        await _excelController.processExcelFile(file);
+        await _historyController.registerUpload();
+
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Excel procesado correctamente'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      AppLogger.log('Error al procesar Excel: $e', prefix: 'ERROR:');
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Error al procesar el archivo Excel'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isProcessing = false);
+      }
     }
   }
 
-  Future<void> _selectDate(BuildContext context, bool isStartDate) async {
-    final selectedDate = await showModalBottomSheet<DateTime>(
-      context: context,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(40)),
-      ),
-      isScrollControlled: true,
-      builder: (BuildContext context) {
-        return DatePickerBottomSheet(
-          initialDate: isStartDate ? (startDate ?? DateTime.now()) : (endDate ?? DateTime.now()),
-        );
-      },
-    );
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: Stack(
+        children: [
+          SizedBox.expand(
+            child: Padding(
+              padding: const EdgeInsets.only(right: 20, left: 20, top: 36),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ImportExcelButton(
+                    onPressed: _isProcessing ? () {} : _pickFile,
+                  ),
+                  SizedBox(height: 36),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'Generar Reporte',
+                      style: GoogleFonts.poppins(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xff545f70),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  Text(
+                    'Rango de fecha',
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      color: Color(0xff545f70),
+                    ),
+                  ),
+                  SizedBox(height: 7),
+                  Row(
+                    children: [
+                      _buildDatePicker("DD/MM/AAAA", true),
+                      SizedBox(width: 10),
+                      _buildDatePicker("DD/MM/AAAA", false),
+                    ],
+                  ),
+                  SizedBox(height: 26),
+                  ExportExcelButton(
+                      onPressed: () async {
+                        if (startDate == null || endDate == null) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Seleccione un rango de fechas'),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                          return;
+                        }
 
-    if (selectedDate != null) {
-      setState(() {
-        if (isStartDate) {
-          startDate = selectedDate;
-        } else {
-          endDate = selectedDate;
-        }
-      });
-    }
+                        try {
+                          setState(() => _isProcessing = true);
+
+                          await _reportDownloadController.registerDownload(startDate!, endDate!);
+                          await _historyController.registerDownload();
+
+                          if (!mounted) return;
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Reporte generado correctamente'))
+                          );
+                        } catch (e) {
+                          if (!mounted) return;
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Error al generar el reporte'),
+                                backgroundColor: Colors.red,
+                              )
+                          );
+                        } finally {
+                          if (mounted) setState(() => _isProcessing = false);
+                        }
+                      }
+                  ),
+                  SizedBox(height: 46),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'Historial de Reportes',
+                      style: GoogleFonts.poppins(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xff545f70),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: StreamBuilder<List<Map<String, dynamic>>>(
+                      stream: _historyController.getHistoryStream(),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasError) {
+                          return Center(child: Text('Error al cargar el historial'));
+                        }
+
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          return Center(child: CircularProgressIndicator());
+                        }
+
+                        final historyData = _convertToStringMap(snapshot.data ?? []);
+                        return ListDateTime(dateTimeData: historyData);
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          if (_isProcessing)
+            Container(
+              color: Colors.black.withOpacity(0.5),
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    CircularProgressIndicator(
+                      color: Color(0xff545f70),
+                    ),
+                    SizedBox(height: 20),
+                    Text(
+                      'Procesando Excel...',
+                      style: GoogleFonts.poppins(
+                        color: Colors.white,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
   }
 
   Widget _buildDatePicker(String label, bool isStartDate) {
@@ -89,89 +252,28 @@ class _ReportsSchedulePageState extends State<ReportsSchedulePage> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final dateTimeData = [
-      {
-        'imagePath': 'assets/images/excelDownDarck.png',
-        'dateText': 'Jueves, 13-10-2024',
-        'timeText': '08:00 pm',
-      },
-      {
-        'imagePath': 'assets/images/excelDownDarck.png',
-        'dateText': 'Viernes, 14-10-2024',
-        'timeText': '09:00 am',
-      },
-      {
-        'imagePath': 'assets/images/excelDownDarck.png',
-        'dateText': 'Viernes, 14-10-2024',
-        'timeText': '09:00 am',
-      },
-      {
-        'imagePath': 'assets/images/excelDownDarck.png',
-        'dateText': 'Viernes, 14-10-2024',
-        'timeText': '09:00 am',
-      }
-    ];
-
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SizedBox.expand(
-        child: Padding(
-          padding: const EdgeInsets.only(right: 20, left: 20, top: 36),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ImportExcelButton(onPressed: _pickFile), // Usa el widget ImportExcelButton
-              SizedBox(height: 36),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'Generar Reporte',
-                  style: GoogleFonts.poppins(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xff545f70),
-                  ),
-                ),
-              ),
-              SizedBox(height: 10),
-              Text(
-                'Rango de fecha',
-                style: GoogleFonts.poppins(
-                  fontSize: 14,
-                  color: Color(0xff545f70),
-                ),
-              ),
-              SizedBox(height: 7),
-              Row(
-                children: [
-                  _buildDatePicker("DD/MM/AAAA", true),
-                  SizedBox(width: 10),
-                  _buildDatePicker("DD/MM/AAAA", false),
-                ],
-              ),
-              SizedBox(height: 26),
-              ExportExcelButton(onPressed: () {}), // Usa el widget ExportExcelButton
-              SizedBox(height: 46),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'Historial de Reportes',
-                  style: GoogleFonts.poppins(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xff545f70),
-                  ),
-                ),
-              ),
-              Expanded(
-                child: ListDateTime(dateTimeData: dateTimeData),
-              ),
-            ],
-          ),
-        ),
+  Future<void> _selectDate(BuildContext context, bool isStartDate) async {
+    final selectedDate = await showModalBottomSheet<DateTime>(
+      context: context,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(40)),
       ),
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return DatePickerBottomSheet(
+          initialDate: isStartDate ? (startDate ?? DateTime.now()) : (endDate ?? DateTime.now()),
+        );
+      },
     );
+
+    if (selectedDate != null) {
+      setState(() {
+        if (isStartDate) {
+          startDate = selectedDate;
+        } else {
+          endDate = selectedDate;
+        }
+      });
+    }
   }
 }

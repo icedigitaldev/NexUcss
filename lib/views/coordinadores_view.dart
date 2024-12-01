@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:nexucss/components/pages/coordinadores/list_card_coordinadores.dart';
+import '../components/pages/coordinadores/list_card_coordinadores.dart';
 
 class CoordinadoresView extends StatelessWidget {
   @override

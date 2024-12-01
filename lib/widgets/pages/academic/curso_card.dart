@@ -8,14 +8,17 @@ class CursoCard extends StatelessWidget {
   final String profesor;
   final String facultad;
   final int alumnos;
+  final Color backgroundColor;
 
-  const CursoCard({super.key, 
+  const CursoCard({
+    super.key,
     required this.seccion,
     required this.aula,
     required this.curso,
     required this.profesor,
     required this.facultad,
     required this.alumnos,
+    this.backgroundColor = const Color(0xfff7f9fb),
   });
 
   @override
@@ -23,7 +26,7 @@ class CursoCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
       decoration: BoxDecoration(
-        color: const Color(0xfff7f9fb),
+        color: backgroundColor,
         borderRadius: BorderRadius.circular(16),
         boxShadow: const [BoxShadow(color: Color(0x3f000000), offset: Offset(0, 0), blurRadius: 4),],
       ),

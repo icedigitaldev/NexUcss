@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:nexucss/views/home_view.dart';
-import 'package:nexucss/views/welcome_view.dart';
-import 'package:nexucss/widgets/pages/profile/profile_option.dart';
 
-import 'package:nexucss/views/condition_view.dart';
-import 'package:nexucss/views/coordinadores_view.dart';
+import '../../views/condition_view.dart';
+import '../../views/coordinadores_view.dart';
+import '../../views/home_view.dart ';
+import '../../views/welcome_view.dart';
+import '../../widgets/pages/profile/profile_option.dart';
 
-class ProfilePage extends StatelessWidget {
+
+class ProfileView extends StatelessWidget {
+  const ProfileView({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -23,6 +26,7 @@ class ProfilePage extends StatelessWidget {
             child: AppBar(
               backgroundColor: Colors.white,
               elevation: 0,
+              centerTitle: true,
               leading: GestureDetector(
                 onTap: () => Navigator.of(context).pop(),
                 child: Container(
@@ -44,7 +48,7 @@ class ProfilePage extends StatelessWidget {
               title: Text(
                 'Perfil',
                 style: GoogleFonts.poppins(
-                  fontSize: 18,
+                  fontSize: 22,
                   color: const Color(0xff545f70),
                   fontWeight: FontWeight.bold,
                 ),
@@ -59,12 +63,12 @@ class ProfilePage extends StatelessWidget {
           children: [
             SizedBox(height: 26),
             CircleAvatar(
-              radius: 50,
+              radius: 80,
               backgroundImage: AssetImage('assets/images/profile_image.png'), // Imagen de perfil
             ),
             SizedBox(height: 16),
             Text(
-              'Angie Ramires',
+              'Hola, Bienvenido',
               style: GoogleFonts.poppins(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -105,6 +109,7 @@ class ProfilePage extends StatelessWidget {
                       );
                     },
                   ),
+                  /*
                   Divider(),
                   ProfileOption(
                     icon: Icons.group_outlined,
@@ -115,6 +120,7 @@ class ProfilePage extends StatelessWidget {
                       );
                     },
                   ),
+                   */
                   Divider(),
                   ProfileOption(
                     icon: Icons.article,

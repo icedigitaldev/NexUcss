@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'home_view.dart';
+import 'package:url_launcher/url_launcher.dart';
+import '../controllers/pincode_controller.dart';
+import '../utils/logger.dart';
 
-
-// Pantalla principal que contiene el campo para ingresar el PIN
 class PincodeView extends StatefulWidget {
   const PincodeView({super.key});
 
@@ -12,106 +13,120 @@ class PincodeView extends StatefulWidget {
 }
 
 class _PinCodeWidgetState extends State<PincodeView> {
-  String enteredPin = ''; // Almacena el PIN ingresado
-  final textfield = TextEditingController(); // Controlador del TextField
+  final PincodeController _controller = PincodeController();
 
-  // Función para manejar la acción cuando se presiona un número
-  void onNumberTapped(String number) {
-    setState(() {
-      if (enteredPin.length < 4) {
-        enteredPin += number; // Añade el número al PIN si es menor a 4 dígitos
-      }
-
-      // Verifica si ya se ingresaron los 4 dígitos
-      if (enteredPin.length == 4) {
-        // Llama automáticamente a la validación del PIN
-        validatePin();
-      }
-    });
+  @override
+  void initState() {
+    super.initState();
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        statusBarColor: Colors.white,
+        statusBarIconBrightness: Brightness.dark,
+      ),
+    );
   }
 
-  // Función para manejar la acción de retroceso (eliminar el último número del PIN)
-  void onCancelText() {
-    if (enteredPin.isNotEmpty) {
-      setState(() {
-        enteredPin = enteredPin.substring(0, enteredPin.length - 1); // Elimina el último número
-      });
+  Future<void> _handlePinValidation() async {
+    if (_controller.enteredPin.length == 4) {
+      _controller.setLoading(true, setState);
+      try {
+        final result = await _controller.validatePin();
+
+        if (result['isValid']) {
+          AppLogger.log('PIN válido', prefix: 'PIN:');
+          Navigator.pushNamed(context, '/home');
+        } else {
+          _showErrorMessage(result['message']);
+          _controller.clearPin(setState);
+        }
+      } catch (e) {
+        _showErrorMessage('Error al validar el PIN');
+      } finally {
+        _controller.setLoading(false, setState);
+      }
     }
   }
 
-  //Función para validar PIN
-  void validatePin() {
-    if (enteredPin == "1234") {
-      // Si el PIN es correcto, redirige a la vista HomeView
-      Navigator.pushNamed(context, '/home');
-      } else {
-      // Si el PIN es incorrecto, muestra un mensaje Toast
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Center(
-          child:  Text(
-            "PIN incorrecto",
+  void _showErrorMessage(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Center(
+          child: Text(
+            message,
             style: GoogleFonts.poppins(
-              fontSize: 18,
-              fontStyle: FontStyle.normal,
-              fontWeight: FontWeight.w500
+                fontSize: 18,
+                fontStyle: FontStyle.normal,
+                fontWeight: FontWeight.w500
             ),
           ),
-          ),
-          backgroundColor: Colors.red,
-          duration: const Duration(seconds: 2),
         ),
-      );
+        backgroundColor: Colors.red,
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
 
-      // Resetea el PIN ingresado para intentar nuevamente
-      setState(() {
-        enteredPin = ''; // Limpia el PIN ingresado
-      });
+  Future<void> _launchEmailClient() async {
+    final subject = Uri.encodeComponent('Solicitud de nuevo PIN');
+    final body = Uri.encodeComponent('Hola,\n\nSolicito la generación de un nuevo PIN para mi cuenta.\n\nGracias.');
+
+    final Uri emailLaunchUri = Uri.parse(
+        'mailto:support@icedigital.pe?subject=$subject&body=$body'
+    );
+
+    try {
+      if (await canLaunchUrl(emailLaunchUri)) {
+        await launchUrl(emailLaunchUri);
+      } else {
+        throw 'No se pudo abrir el cliente de correo';
+      }
+    } catch (e) {
+      _showErrorMessage('Error al abrir el cliente de correo');
     }
   }
 
-
-  // Grid que contiene los números del 0 al 9, icono de huella y retroceso
   Widget gridView() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 50), // Añade margen horizontal
+      padding: const EdgeInsets.symmetric(horizontal: 50),
       child: GridView.count(
-        crossAxisCount: 3, // Número de columnas
+        crossAxisCount: 3,
         shrinkWrap: true,
-        mainAxisSpacing: 20.0, // Espaciado vertical entre botones
-        crossAxisSpacing: 50.0, // Espaciado horizontal entre botones
+        mainAxisSpacing: 20.0,
+        crossAxisSpacing: 50.0,
         children: [
           keyField("1"), keyField("2"), keyField("3"),
           keyField("4"), keyField("5"), keyField("6"),
           keyField("7"), keyField("8"), keyField("9"),
-          fingerprint(), // Botón de huella digital
-          keyField("0"), backSpace(), // Botón de retroceso
+          fingerprint(),
+          keyField("0"), backSpace(),
         ],
       ),
     );
   }
 
-  // Widget para cada botón numérico
   Widget keyField(String numb) {
     return ClipOval(
       child: Material(
-        color: Colors.white, // Fondo blanco del botón
+        color: Colors.white,
         child: InkWell(
-          onTap: () => onNumberTapped(numb), // Acción al tocar el botón
+          onTap: () {
+            _controller.onNumberTapped(numb, setState);
+            _handlePinValidation();
+          },
           child: Container(
-            height: 66, // Ajuste de tamaño
-            width: 66, // Ajuste de tamaño
+            height: 66,
+            width: 66,
             decoration: BoxDecoration(
-              shape: BoxShape.circle, // Forma circular del botón
-              border: Border.all(color: const Color(0xffcebfbf), width: 1), // Borde del botón
+              shape: BoxShape.circle,
+              border: Border.all(color: const Color(0xffa4ecdb), width: 1),
             ),
-            child: Center( // Centra el texto dentro del botón
+            child: Center(
               child: Text(
                 numb,
                 style: GoogleFonts.poppins(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  color: const Color(0xee114052), // Color del texto
+                  color: const Color(0xee114052),
                 ),
               ),
             ),
@@ -121,30 +136,28 @@ class _PinCodeWidgetState extends State<PincodeView> {
     );
   }
 
-  // Widget para el botón de huella digital (sin funcionalidad por ahora)
   Widget fingerprint() {
     return Container(
       height: 66,
       width: 66,
       decoration: const BoxDecoration(
-        shape: BoxShape.circle, // Forma circular del botón
+        shape: BoxShape.circle,
       ),
       child: const Icon(
         Icons.fingerprint,
-        color: Colors.black, // Icono de huella digital
+        color: Colors.black,
         size: 50,
       ),
     );
   }
 
-  // Widget para el botón de retroceso (borra el último número)
   Widget backSpace() {
     return IconButton(
-      onPressed: onCancelText, // Llama a la función de retroceso al tocar
+      onPressed: () => _controller.onCancelText(setState),
       icon: const Icon(
         Icons.backspace,
-        color: Colors.black, // Color del icono
-        size: 24,
+        color: Colors.black,
+        size: 32,
       ),
     );
   }
@@ -153,70 +166,85 @@ class _PinCodeWidgetState extends State<PincodeView> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.only(top: 50), // Espaciado superior
-          physics: const BouncingScrollPhysics(), // Efecto de rebote
-          children: [
-            Image.asset( // Logo o imagen
-              'assets/images/nexucss.png',
-              width: 200,
-              height: 46,
-            ),
-            const SizedBox(height: 15),
-            // Texto de saludo
-            Center(
-              child: Text(
-                'Hola, ingresa tu PIN',
-                style: GoogleFonts.poppins(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w600,
+      body: Stack(
+        children: [
+          SafeArea(
+            child: ListView(
+              padding: const EdgeInsets.only(top: 50),
+              physics: const BouncingScrollPhysics(),
+              children: [
+                Image.asset(
+                  'assets/images/nexucss.png',
+                  width: 200,
+                  height: 46,
                 ),
-              ),
-            ),
-            const SizedBox(height: 40),
-            // Indicadores de los 4 dígitos del PIN
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(4, (index) {
-                return Container(
-                  margin: const EdgeInsets.all(6.0), // Espaciado alrededor de cada círculo
-                  width: 30,
-                  height: 30,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(100), // Bordes circulares
-                    border: Border.all(color: Colors.grey[400]!, width: 1), // Borde gris claro
-                    color: index < enteredPin.length // Si el índice es menor que la longitud del PIN, lo llena
-                        ? Theme.of(context).colorScheme.primary // Usar color primario del tema Material
-                        : Theme.of(context).colorScheme.background, // Usar color de fondo del tema Material
-                  ),
-                  child: index < enteredPin.length // Si hay un dígito en esa posición, muestra un círculo
-                      ? const Center(
-                    child: Icon(
-                      Icons.circle,
-                      size: 12,
-                      color: Colors.white, // Icono de punto en el PIN ingresado
+                const SizedBox(height: 15),
+                Center(
+                  child: Text(
+                    'Hola, ingresa tu PIN',
+                    style: GoogleFonts.poppins(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
                     ),
-                  )
-                      : null,
-                );
-              }),
-            ),
-            const SizedBox(height: 46),
-            gridView(), // Llama a la función del teclado numérico
-            const SizedBox(height: 64),
-            // Texto para opción de recuperación de PIN
-            Center(
-              child: Text(
-                '¿Olvidaste tu PIN?',
-                style: GoogleFonts.poppins(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
+                  ),
                 ),
-              ),
+                const SizedBox(height: 40),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(4, (index) {
+                    return Container(
+                      margin: const EdgeInsets.all(6.0),
+                      width: 30,
+                      height: 30,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(100),
+                        color: index < _controller.enteredPin.length
+                            ? Colors.cyan
+                            : Colors.transparent,
+                        border: Border.all(
+                          color: Colors.cyan,
+                          width: 1.5,
+                        ),
+                      ),
+                    );
+                  }),
+                ),
+                const SizedBox(height: 32),
+                Visibility(
+                  visible: _controller.isLoading,
+                  maintainSize: true,
+                  maintainAnimation: true,
+                  maintainState: true,
+                  child: const SizedBox(
+                    height: 43,
+                    child: Center(
+                      child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.pinkAccent),
+                        strokeWidth: 3,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 32),
+                gridView(),
+                const SizedBox(height: 68),
+                Center(
+                  child: GestureDetector(
+                    onTap: _launchEmailClient,
+                    child: Text(
+                      '¿Olvidaste tu PIN?',
+                      style: GoogleFonts.poppins(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

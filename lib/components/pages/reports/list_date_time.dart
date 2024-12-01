@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:nexucss/widgets/pages/reports/custom_date_time_row.dart';
+import '../../../widgets/pages/reports/custom_date_time_row.dart';
 
 class ListDateTime extends StatelessWidget {
   final List<Map<String, String>> dateTimeData;
@@ -18,9 +18,10 @@ class ListDateTime extends StatelessWidget {
         itemBuilder: (context, index) {
           final data = dateTimeData[index];
           return CustomDateTimeRow(
-            imagePath: data['imagePath'] ?? '',
             dateText: data['dateText'] ?? '',
             timeText: data['timeText'] ?? '',
+            status: data['status'] ?? 'download',
+            userName: data['userName'] ?? '',
           );
         },
       ),
