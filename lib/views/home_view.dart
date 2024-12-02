@@ -32,7 +32,7 @@ class _HomeViewState extends State<HomeView> {
   ];
 
   static const List<String> _titles = [
-    'Hola, Angie',
+    'Hola, Bienvenido',
     'Aplazados',
     'Reportes',
   ];
@@ -102,7 +102,7 @@ class _CustomAppBarState extends ConsumerState<CustomAppBar> {
           automaticallyImplyLeading: false,
           backgroundColor: Colors.white,
           scrolledUnderElevation: 0,
-          title: isSearching && widget.title == 'Hola, Angie'
+          title: isSearching && widget.title == 'Hola, Bienvenido'
               ? TextField(
             controller: _searchController,
             autofocus: true,
