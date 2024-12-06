@@ -67,11 +67,25 @@ class SearchController extends StateNotifier<SearchState> {
   }
 }
 
+String obtenerDiaActual() {
+  final now = DateTime.now();
+  final dias = {
+    1: 'LUNES',
+    2: 'MARTES',
+    3: 'MIÉRCOLES',
+    4: 'JUEVES',
+    5: 'VIERNES',
+    6: 'SÁBADO',
+    7: 'DOMINGO'
+  };
+  return dias[now.weekday]!;
+}
+
 final cursoControllerProvider = StateNotifierProvider<CursoController, AsyncValue<Map<String, List<Map<String, dynamic>>>>>(
         (ref) => CursoController(CursoService())
 );
 
-final selectedDayProvider = StateProvider<String>((ref) => 'LUNES');
+final selectedDayProvider = StateProvider<String>((ref) => obtenerDiaActual());
 
 final searchControllerProvider = StateNotifierProvider<SearchController, SearchState>((ref) => SearchController());
 
