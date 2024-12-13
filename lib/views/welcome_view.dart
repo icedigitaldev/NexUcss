@@ -52,7 +52,26 @@ class _WelcomeViewState extends State<WelcomeView> {
               width: 250,
               height: 46,
             ),
-            const SizedBox(height: 150),
+            const SizedBox(height: 20),
+            TextButton.icon(
+              onPressed: () {
+                Navigator.pushNamed(context, '/tutorial');
+              },
+              icon: const Icon(
+                Icons.play_circle_outline,
+                color: Color(0xFF545F71),
+                size: 28,
+              ),
+              label: Text(
+                'Ver Tutorial',
+                style: GoogleFonts.poppins(
+                  fontSize: 16,
+                  color: const Color(0xFF545F71),
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+            const SizedBox(height: 60),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [

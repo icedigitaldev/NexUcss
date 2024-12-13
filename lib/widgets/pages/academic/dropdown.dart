@@ -16,56 +16,72 @@ class Dropdown extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 140, // Ancho fijo de 174px
+      width: 140,
       decoration: BoxDecoration(
-        color: Colors.white, // Fondo blanco
-        border: Border.all(color: Colors.grey, width: 1), // Borde gris
-        borderRadius: BorderRadius.circular(20), // Bordes redondeados con un radio de 20px
+        color: Colors.white,
+        border: Border.all(color: Colors.grey, width: 1),
+        borderRadius: BorderRadius.circular(20),
       ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
-        child: DropdownButtonHideUnderline( // Para ocultar la línea por defecto del DropdownButton
-          child: DropdownButton<String>(
-            value: selectedValue,
-            hint: Text(
-              'Turno',
-              style: GoogleFonts.poppins(
+      child: Theme(
+        data: Theme.of(context).copyWith(
+          popupMenuTheme: PopupMenuThemeData(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15),
+            ),
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<String>(
+              value: selectedValue,
+              hint: Text(
+                'Turno',
+                style: GoogleFonts.poppins(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
                   letterSpacing: -0.35,
-                  fontStyle: FontStyle.normal),
-            ),
-            icon: Padding(
-              padding: const EdgeInsets.only(left: 5), // Separación entre el texto y el ícono
-              child: Image.asset(
-                'assets/images/icon_arrow_down.png',
-                width: 20, // Ajusta el tamaño del ícono según tu diseño
+                  fontStyle: FontStyle.normal,
+                ),
               ),
-            ),
-            iconSize: 24,
-            elevation: 16,
-            style: GoogleFonts.poppins(
-              fontSize: 14, // Fuente Poppins de 14px para los elementos del Dropdown
-              color: Colors.black,
-            ),
-            onChanged: onChanged,
-            dropdownColor: Colors.white, // Fondo blanco para las opciones del menú desplegable
-            items: items.map<DropdownMenuItem<String>>((String value) {
-              return DropdownMenuItem<String>(
-                value: value,
-                child: Container(
-                  color: Colors.white, // Asegura que cada opción tenga un fondo blanco
-                  child: Text(
-                    value,
-                    style: GoogleFonts.poppins(
+              icon: Padding(
+                padding: const EdgeInsets.only(left: 5),
+                child: Image.asset(
+                  'assets/images/icon_arrow_down.png',
+                  width: 20,
+                ),
+              ),
+              iconSize: 24,
+              elevation: 16,
+              style: GoogleFonts.poppins(
+                fontSize: 14,
+                color: Colors.black,
+              ),
+              onChanged: onChanged,
+              dropdownColor: Colors.white,
+              menuMaxHeight: 300,
+              borderRadius: BorderRadius.circular(15),
+              items: items.map<DropdownMenuItem<String>>((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: Text(
+                      value,
+                      style: GoogleFonts.poppins(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
                         letterSpacing: -0.35,
-                        fontStyle: FontStyle.normal),
+                        fontStyle: FontStyle.normal,
+                      ),
+                    ),
                   ),
-                ),
-              );
-            }).toList(),
+                );
+              }).toList(),
+            ),
           ),
         ),
       ),

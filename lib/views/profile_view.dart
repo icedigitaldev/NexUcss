@@ -109,6 +109,12 @@ class ProfileView extends StatelessWidget {
                       );
                     },
                   ),
+                  Divider(),
+                  ProfileOption(
+                    icon: Icons.play_circle_outline,
+                    title: 'Tutorial',
+                    onTap: () => Navigator.pushNamed(context, '/tutorial'),
+                  ),
                   /*
                   Divider(),
                   ProfileOption(
@@ -121,6 +127,7 @@ class ProfileView extends StatelessWidget {
                     },
                   ),
                    */
+
                   Divider(),
                   ProfileOption(
                     icon: Icons.article,

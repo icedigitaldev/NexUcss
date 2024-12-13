@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../controllers/report_download_controller.dart';
+import '../../controllers/template_download_controller.dart';
 import '../../widgets/pages/reports/date_picker_bottom_sheet.dart';
 import '../../widgets/pages/reports/export_excel_button.dart';
 import '../../widgets/pages/reports/import_excel_button.dart';
+import '../../widgets/pages/reports/download_template_button.dart';
 import '../../controllers/excel_controller.dart';
 import '../../controllers/history_controller.dart';
 import '../../utils/logger.dart';
@@ -25,6 +27,7 @@ class _ReportsSchedulePageState extends State<ReportsSchedulePage> {
   final HistoryController _historyController = HistoryController();
   final ReportDownloadController _reportDownloadController = ReportDownloadController();
   bool _isProcessing = false;
+  bool _isDownloadingTemplate = false;
 
   List<Map<String, String>> _convertToStringMap(List<Map<String, dynamic>> dynamicList) {
     return dynamicList.map((item) => {
@@ -83,14 +86,43 @@ class _ReportsSchedulePageState extends State<ReportsSchedulePage> {
         children: [
           SizedBox.expand(
             child: Padding(
-              padding: const EdgeInsets.only(right: 20, left: 20, top: 36),
+              padding: const EdgeInsets.only(right: 20, left: 20, top: 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  ImportExcelButton(
-                    onPressed: _isProcessing ? () {} : _pickFile,
+                  Row(
+                    children: [
+                      DownloadTemplateButton(
+                        onPressed: () {
+                          final templateController = TemplateDownloadController();
+                          templateController.downloadTemplate().then((filePath) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Plantilla descargada en: $filePath'),
+                                backgroundColor: Colors.green,
+                              ),
+                            );
+                          }).catchError((error) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Error al descargar la plantilla'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          });
+                        },
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: ImportExcelButton(
+                          onPressed: _isProcessing ? () {} : () {
+                            _pickFile();
+                          },
+                        ),
+                      ),
+                    ],
                   ),
-                  SizedBox(height: 36),
+                  const SizedBox(height: 20),
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
@@ -98,27 +130,27 @@ class _ReportsSchedulePageState extends State<ReportsSchedulePage> {
                       style: GoogleFonts.poppins(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
-                        color: Color(0xff545f70),
+                        color: const Color(0xff545f70),
                       ),
                     ),
                   ),
-                  SizedBox(height: 10),
+                  const SizedBox(height: 10),
                   Text(
                     'Rango de fecha',
                     style: GoogleFonts.poppins(
                       fontSize: 14,
-                      color: Color(0xff545f70),
+                      color: const Color(0xff545f70),
                     ),
                   ),
-                  SizedBox(height: 7),
+                  const SizedBox(height: 7),
                   Row(
                     children: [
                       _buildDatePicker("DD/MM/AAAA", true),
-                      SizedBox(width: 10),
+                      const SizedBox(width: 10),
                       _buildDatePicker("DD/MM/AAAA", false),
                     ],
                   ),
-                  SizedBox(height: 26),
+                  const SizedBox(height: 26),
                   ExportExcelButton(
                       onPressed: () async {
                         if (startDate == null || endDate == null) {
@@ -154,7 +186,7 @@ class _ReportsSchedulePageState extends State<ReportsSchedulePage> {
                         }
                       }
                   ),
-                  SizedBox(height: 46),
+                  const SizedBox(height: 36),
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
@@ -162,7 +194,7 @@ class _ReportsSchedulePageState extends State<ReportsSchedulePage> {
                       style: GoogleFonts.poppins(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
-                        color: Color(0xff545f70),
+                        color: const Color(0xff545f70),
                       ),
                     ),
                   ),
@@ -171,11 +203,11 @@ class _ReportsSchedulePageState extends State<ReportsSchedulePage> {
                       stream: _historyController.getHistoryStream(),
                       builder: (context, snapshot) {
                         if (snapshot.hasError) {
-                          return Center(child: Text('Error al cargar el historial'));
+                          return const Center(child: Text('Error al cargar el historial'));
                         }
 
                         if (snapshot.connectionState == ConnectionState.waiting) {
-                          return Center(child: CircularProgressIndicator());
+                          return const Center(child: CircularProgressIndicator());
                         }
 
                         final historyData = _convertToStringMap(snapshot.data ?? []);
@@ -194,10 +226,10 @@ class _ReportsSchedulePageState extends State<ReportsSchedulePage> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    CircularProgressIndicator(
+                    const CircularProgressIndicator(
                       color: Color(0xff545f70),
                     ),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     Text(
                       'Procesando Excel...',
                       style: GoogleFonts.poppins(
@@ -224,11 +256,11 @@ class _ReportsSchedulePageState extends State<ReportsSchedulePage> {
       child: GestureDetector(
         onTap: () => _selectDate(context, isStartDate),
         child: Container(
-          padding: EdgeInsets.symmetric(vertical: 15, horizontal: 10),
+          padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: Color(0xFFCBD5E0)),
+            border: Border.all(color: const Color(0xFFCBD5E0)),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -237,10 +269,10 @@ class _ReportsSchedulePageState extends State<ReportsSchedulePage> {
                 displayText,
                 style: GoogleFonts.poppins(
                   fontSize: 14,
-                  color: Color(0xFF7A869A),
+                  color: const Color(0xFF7A869A),
                 ),
               ),
-              Icon(
+              const Icon(
                 Icons.calendar_today_outlined,
                 color: Color(0xFF7A869A),
                 size: 18,
@@ -255,7 +287,7 @@ class _ReportsSchedulePageState extends State<ReportsSchedulePage> {
   Future<void> _selectDate(BuildContext context, bool isStartDate) async {
     final selectedDate = await showModalBottomSheet<DateTime>(
       context: context,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(40)),
       ),
       isScrollControlled: true,

@@ -66,39 +66,68 @@ class _HorarioSelectorState extends State<HorarioSelector> {
     final horarios = getHorariosByTurno();
 
     return Container(
+      height: 50,
       decoration: const BoxDecoration(
-          border: Border(bottom: BorderSide(color: Color(0xff9ba5b7), width: 2))
+        border: Border(
+          bottom: BorderSide(
+            color: Color(0xFFE0E0E0),
+            width: 0.5,
+          ),
+        ),
       ),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        physics: const BouncingScrollPhysics(),
-        child: Row(
-          children: [
-            const SizedBox(width: 4),
-            ...horarios.map((horario) {
+      child: Center(
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          physics: const BouncingScrollPhysics(),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: horarios.map((horario) {
               final isSelected = widget.selectedHorario == horario;
-              return GestureDetector(
-                onTap: () => widget.onHorarioSelected(horario),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
-                  decoration: BoxDecoration(
-                    color: isSelected ? const Color(0xff545f70) : Colors.transparent,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Text(
-                    horario,
-                    style: GoogleFonts.poppins(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      fontStyle: FontStyle.normal,
-                      color: isSelected ? Colors.white : const Color(0xff545f70),
+
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: GestureDetector(
+                  onTap: () => widget.onHorarioSelected(horario),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      border: Border(
+                        bottom: BorderSide(
+                          color: isSelected
+                              ? const Color(0xFF9E9E9E)
+                              : Colors.transparent,
+                          width: 2,
+                        ),
+                      ),
+                    ),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      curve: Curves.easeInOut,
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      decoration: BoxDecoration(
+                        color: isSelected
+                            ? const Color(0xff545f70).withOpacity(0.08)
+                            : Colors.transparent,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Center(
+                        child: Text(
+                          horario,
+                          style: GoogleFonts.poppins(
+                            fontSize: 15,
+                            height: 1.2,
+                            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                            color: isSelected
+                                ? const Color(0xff545f70)
+                                : const Color(0xff545f70).withOpacity(0.7),
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 ),
               );
             }).toList(),
-            const SizedBox(width: 4),
-          ],
+          ),
         ),
       ),
     );

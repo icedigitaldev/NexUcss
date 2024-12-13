@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../components/pages/academic_schedule_page.dart';
@@ -51,12 +52,16 @@ class _HomeViewState extends State<HomeView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CustomAppBar(title: _titles[_selectedIndex]),
-      body: _views[_selectedIndex],
-      bottomNavigationBar: CustomBottomNavigationBar(
-        selectedIndex: _selectedIndex,
-        onItemTapped: _onItemTapped,
+    return WillPopScope(
+      onWillPop: () async => false,
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        appBar: CustomAppBar(title: _titles[_selectedIndex]),
+        body: _views[_selectedIndex],
+        bottomNavigationBar: CustomBottomNavigationBar(
+          selectedIndex: _selectedIndex,
+          onItemTapped: _onItemTapped,
+        ),
       ),
     );
   }
@@ -90,136 +95,143 @@ class _CustomAppBarState extends ConsumerState<CustomAppBar> {
       preferredSize: const Size.fromHeight(64),
       child: Container(
         decoration: const BoxDecoration(
+          borderRadius: BorderRadius.vertical(
+            bottom: Radius.circular(24),
+          ),
           boxShadow: [
             BoxShadow(
-              color: Color(0x3f000000),
+              color: Color(0x26000000),
               offset: Offset(0, 4),
-              blurRadius: 4,
+              blurRadius: 8,
             ),
           ],
         ),
-        child: AppBar(
-          automaticallyImplyLeading: false,
-          backgroundColor: Colors.white,
-          scrolledUnderElevation: 0,
-          title: isSearching && widget.title == 'Hola, Bienvenido'
-              ? TextField(
-            controller: _searchController,
-            autofocus: true,
-            decoration: InputDecoration(
-              hintText: 'Buscar curso, docente, facultad...',
-              border: InputBorder.none,
-              hintStyle: GoogleFonts.poppins(
-                fontSize: 16,
-                color: Colors.grey,
+        child: ClipRRect(
+          borderRadius: BorderRadius.vertical(
+            bottom: Radius.circular(24),
+          ),
+          child: AppBar(
+            automaticallyImplyLeading: false,
+            backgroundColor: Colors.white,
+            scrolledUnderElevation: 0,
+            title: isSearching && widget.title == 'Hola, Bienvenido'
+                ? TextField(
+              controller: _searchController,
+              autofocus: true,
+              decoration: InputDecoration(
+                hintText: 'Buscar curso, docente, facultad...',
+                border: InputBorder.none,
+                hintStyle: GoogleFonts.poppins(
+                  fontSize: 16,
+                  color: Colors.grey,
+                ),
               ),
-            ),
-            style: GoogleFonts.poppins(
-              fontSize: 16,
-              color: const Color(0xff545f70),
-            ),
-            onChanged: (value) {
-              ref.read(searchControllerProvider.notifier).setSearchQuery(value);
-            },
-          )
-              : Padding(
-            padding: const EdgeInsets.only(left: 10),
-            child: Row(
-              children: [
-                if (widget.title == 'Hola, Bienvenido' ||
-                    widget.title == 'Aplazados' ||
-                    widget.title == 'Reportes')
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const ProfileView()),
-                      );
-                    },
-                    child: Image.asset(
-                      'assets/images/icon_user.png',
-                      height: 35,
-                      width: 35,
+              style: GoogleFonts.poppins(
+                fontSize: 16,
+                color: const Color(0xff545f70),
+              ),
+              onChanged: (value) {
+                ref.read(searchControllerProvider.notifier).setSearchQuery(value);
+              },
+            )
+                : Padding(
+              padding: const EdgeInsets.only(left: 10),
+              child: Row(
+                children: [
+                  if (widget.title == 'Hola, Bienvenido' ||
+                      widget.title == 'Aplazados' ||
+                      widget.title == 'Reportes')
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const ProfileView()),
+                        );
+                      },
+                      child: Image.asset(
+                        'assets/images/icon_user.png',
+                        height: 35,
+                        width: 35,
+                      ),
+                    ),
+                  if (widget.title == 'Hola, Bienvenido' ||
+                      widget.title == 'Aplazados' ||
+                      widget.title == 'Reportes')
+                    const SizedBox(width: 7),
+                  Text(
+                    widget.title,
+                    style: GoogleFonts.poppins(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      fontStyle: FontStyle.normal,
+                      color: const Color(0xff545f70),
                     ),
                   ),
-                if (widget.title == 'Hola, Bienvenido' ||
-                    widget.title == 'Aplazados' ||
-                    widget.title == 'Reportes')
-                  const SizedBox(width: 7),
-                Text(
-                  widget.title,
-                  style: GoogleFonts.poppins(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    fontStyle: FontStyle.normal,
-                    color: const Color(0xff545f70),
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
+            elevation: 0,
+            actions: [
+              if (widget.title == 'Hola, Bienvenido')
+                Padding(
+                  padding: const EdgeInsets.only(right: 10),
+                  child: IconButton(
+                    icon: isSearching
+                        ? const Icon(
+                      Icons.close,
+                      color: Color(0xff545f70),
+                      size: 30,
+                    )
+                        : Image.asset(
+                      'assets/images/icon_lupa.png',
+                      width: 35,
+                      height: 35,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        if (isSearching) {
+                          isSearching = false;
+                          _searchController.clear();
+                          ref.read(searchControllerProvider.notifier).clearSearch();
+                        } else {
+                          isSearching = true;
+                        }
+                      });
+                    },
+                  ),
+                ),
+              if (widget.title == 'Aplazados')
+                Padding(
+                  padding: const EdgeInsets.only(right: 10),
+                  child: IconButton(
+                    icon: const Icon(
+                      Icons.calendar_today,
+                      color: Color(0xff545f70),
+                      size: 30,
+                    ),
+                    onPressed: () {
+                      showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        shape: const RoundedRectangleBorder(
+                          borderRadius:
+                          BorderRadius.vertical(top: Radius.circular(40)),
+                        ),
+                        builder: (BuildContext context) {
+                          return const CalendarWidget();
+                        },
+                      );
+                    },
+                  ),
+                ),
+            ],
           ),
-          elevation: 0,
-          actions: [
-            if (widget.title == 'Hola, Bienvenido')
-              Padding(
-                padding: const EdgeInsets.only(right: 10),
-                child: IconButton(
-                  icon: isSearching
-                      ? const Icon(
-                    Icons.close,
-                    color: Color(0xff545f70),
-                    size: 30,
-                  )
-                      : Image.asset(
-                    'assets/images/icon_lupa.png',
-                    width: 35,
-                    height: 35,
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      if (isSearching) {
-                        isSearching = false;
-                        _searchController.clear();
-                        ref.read(searchControllerProvider.notifier).clearSearch();
-                      } else {
-                        isSearching = true;
-                      }
-                    });
-                  },
-                ),
-              ),
-            if (widget.title == 'Aplazados')
-              Padding(
-                padding: const EdgeInsets.only(right: 10),
-                child: IconButton(
-                  icon: const Icon(
-                    Icons.calendar_today,
-                    color: Color(0xff545f70),
-                    size: 30,
-                  ),
-                  onPressed: () {
-                    showModalBottomSheet(
-                      context: context,
-                      isScrollControlled: true,
-                      shape: const RoundedRectangleBorder(
-                        borderRadius:
-                        BorderRadius.vertical(top: Radius.circular(40)),
-                      ),
-                      builder: (BuildContext context) {
-                        return const CalendarWidget();
-                      },
-                    );
-                  },
-                ),
-              ),
-          ],
         ),
       ),
     );
   }
 }
-
 class CustomBottomNavigationBar extends StatelessWidget {
   final int selectedIndex;
   final ValueChanged<int> onItemTapped;

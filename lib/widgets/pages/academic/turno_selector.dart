@@ -6,51 +6,75 @@ import 'dropdown.dart';
 
 class TurnoSelector extends StatefulWidget {
   final Function(String) onTurnoChanged;
-
   const TurnoSelector({super.key, required this.onTurnoChanged});
 
   @override
-  _TurnoSelectorState createState() => _TurnoSelectorState();
+  State<TurnoSelector> createState() => _TurnoSelectorState();
 }
 
 class _TurnoSelectorState extends State<TurnoSelector> {
-  List<String> items = [
-    'Mañana',
-    'Tarde',
-    'Noche',
-  ];
-
-  String? selectedValue;
+  final List<String> items = ['Mañana', 'Tarde', 'Noche'];
+  late String selectedValue;
   String formattedDate = '';
+  DateTime selectedDate = DateTime.now();
 
   @override
   void initState() {
     super.initState();
-    selectedValue = 'Mañana';
+    selectedValue = items.first;
     _initializeDate();
-    Future.microtask(() {
-      if (mounted) {
-        widget.onTurnoChanged(selectedValue!);
-      }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      widget.onTurnoChanged(selectedValue);
     });
   }
 
   Future<void> _initializeDate() async {
-    await initializeDateFormatting('es_ES', null);
+    Intl.defaultLocale = 'es';
+    await initializeDateFormatting('es');
     if (mounted) {
       setState(() {
-        formattedDate = _getFormattedDate();
+        formattedDate = _getFormattedDate(selectedDate);
       });
     }
   }
 
-  String _getFormattedDate() {
-    final now = DateTime.now();
-    final formatter = DateFormat('EEEE dd/MM/yy', 'es_ES');
-    String formatted = formatter.format(now);
-    String dayName = formatted.split(' ')[0];
-    dayName = dayName[0].toUpperCase() + dayName.substring(1);
-    return '$dayName ${formatted.split(' ')[1]}';
+  String _getFormattedDate(DateTime date) {
+    final formatted = DateFormat('EEEE dd/MM/yy', 'es').format(date);
+    final parts = formatted.split(' ');
+    return '${parts[0].capitalize()} ${parts[1]}';
+  }
+
+  void _showDatePicker() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
+      ),
+      builder: (_) => Container(
+        height: 380,
+        padding: const EdgeInsets.fromLTRB(0, 16, 0, 0),
+        child: Theme(
+          data: ThemeData(
+            colorScheme: const ColorScheme.light(
+              primary: Colors.deepPurple,
+            ),
+          ),
+          child: CalendarDatePicker(
+            initialDate: selectedDate,
+            firstDate: DateTime.now(),
+            lastDate: DateTime.now().add(const Duration(days: 365 * 10)),
+            onDateChanged: (date) {
+              setState(() {
+                selectedDate = date;
+                formattedDate = _getFormattedDate(date);
+              });
+              Navigator.pop(context);
+            },
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -58,34 +82,36 @@ class _TurnoSelectorState extends State<TurnoSelector> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: Container(
-        height: 48,
+        height: 56,
         decoration: BoxDecoration(
           color: const Color(0xff9ba5b7),
-          borderRadius: BorderRadius.circular(25),
+          borderRadius: BorderRadius.circular(22),
         ),
         child: Padding(
-          padding: const EdgeInsets.only(left: 15, top: 5, bottom: 5, right: 5),
+          padding: const EdgeInsets.fromLTRB(15, 5, 5, 5),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                formattedDate,
-                style: GoogleFonts.poppins(
-                  fontSize: 18,
-                  fontStyle: FontStyle.normal,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
-                  letterSpacing: -0.36,
+              GestureDetector(
+                onTap: _showDatePicker,
+                child: Text(
+                  formattedDate,
+                  style: GoogleFonts.poppins(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                    letterSpacing: -0.36,
+                  ),
                 ),
               ),
               Dropdown(
                 selectedValue: selectedValue,
                 items: items,
-                onChanged: (newValue) {
-                  setState(() {
-                    selectedValue = newValue;
-                    widget.onTurnoChanged(newValue!);
-                  });
+                onChanged: (value) {
+                  if (value != null) {
+                    setState(() => selectedValue = value);
+                    widget.onTurnoChanged(value);
+                  }
                 },
               ),
             ],
@@ -94,4 +120,8 @@ class _TurnoSelectorState extends State<TurnoSelector> {
       ),
     );
   }
+}
+
+extension StringExtension on String {
+  String capitalize() => '${this[0].toUpperCase()}${substring(1)}';
 }

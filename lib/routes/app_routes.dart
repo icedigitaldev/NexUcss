@@ -4,6 +4,7 @@ import '../views/condition_view.dart';
 import '../views/pincode_view.dart';
 import '../views/welcome_view.dart';
 import '../views/home_view.dart';
+import '../views/tutorial_view.dart';
 import '../utils/logger.dart';
 
 class AppRoutes {
@@ -11,6 +12,7 @@ class AppRoutes {
   static const String pincodeView = '/pincode';
   static const String homeView = '/home';
   static const String conditionView = '/condition';
+  static const String tutorialView = '/tutorial';
 
   static Future<String> getInitialRoute() async {
     try {
@@ -35,5 +37,6 @@ class AppRoutes {
     pincodeView: (context) => const PincodeView(),
     homeView: (context) => const HomeView(),
     conditionView: (context) => const ConditionView(),
+    tutorialView: (context) => const TutorialView(),
   };
 }

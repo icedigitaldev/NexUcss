@@ -19,7 +19,7 @@ class _AcademicSchedulePageState extends State<AcademicSchedulePage> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: Padding(
-        padding: const EdgeInsets.only(top: 25, bottom: 0),
+        padding: const EdgeInsets.only(top: 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -31,7 +31,7 @@ class _AcademicSchedulePageState extends State<AcademicSchedulePage> {
                 });
               },
             ),
-            const SizedBox(height: 19),
+            const SizedBox(height: 12),
             HorarioSelector(
               turno: selectedTurno,
               selectedHorario: selectedHorario,
@@ -43,14 +43,9 @@ class _AcademicSchedulePageState extends State<AcademicSchedulePage> {
             ),
             const SizedBox(height: 0),
             Expanded(
-              child: Center(
-                child: SingleChildScrollView(
-                  child: Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 20),
-                    alignment: Alignment.center,
-                    child: CursoList(selectedHorario: selectedHorario),
-                  ),
-                ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 6),
+                child: CursoList(selectedHorario: selectedHorario),
               ),
             ),
           ],
