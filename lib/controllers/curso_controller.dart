@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../services/curso_service.dart';
+import '../utils/logger.dart';
 import 'dart:async';
 
 class CursoController extends StateNotifier<AsyncValue<Map<String, List<Map<String, dynamic>>>>> {
@@ -12,11 +13,14 @@ class CursoController extends StateNotifier<AsyncValue<Map<String, List<Map<Stri
   Future<void> loadCursos() async {
     try {
       state = const AsyncValue.loading();
+      AppLogger.log('Cargando cursos...', prefix: 'CURSO_CONTROLLER:');
       final cursos = await _cursoService.getCursosPorDia();
       if (mounted) {
         state = AsyncValue.data(cursos);
+        AppLogger.log('Cursos cargados exitosamente', prefix: 'CURSO_CONTROLLER:');
       }
     } catch (e) {
+      AppLogger.log('Error al cargar cursos: $e', prefix: 'CURSO_CONTROLLER:');
       if (mounted) {
         state = AsyncValue.error(e, StackTrace.current);
       }
@@ -24,6 +28,7 @@ class CursoController extends StateNotifier<AsyncValue<Map<String, List<Map<Stri
   }
 
   Future<void> refresh() async {
+    AppLogger.log('Refrescando cursos...', prefix: 'CURSO_CONTROLLER:');
     await loadCursos();
   }
 }
@@ -51,12 +56,14 @@ class SearchController extends StateNotifier<SearchState> {
     if (_debounce?.isActive ?? false) _debounce!.cancel();
 
     _debounce = Timer(const Duration(milliseconds: 800), () {
+      AppLogger.log('Búsqueda actualizada: $query', prefix: 'SEARCH_CONTROLLER:');
       state = state.copyWith(query: query, isSearching: query.isNotEmpty);
     });
   }
 
   void clearSearch() {
     if (_debounce?.isActive ?? false) _debounce!.cancel();
+    AppLogger.log('Búsqueda limpiada', prefix: 'SEARCH_CONTROLLER:');
     state = SearchState();
   }
 
@@ -67,8 +74,7 @@ class SearchController extends StateNotifier<SearchState> {
   }
 }
 
-String obtenerDiaActual() {
-  final now = DateTime.now();
+String obtenerDiaDeSemana(DateTime fecha) {
   final dias = {
     1: 'LUNES',
     2: 'MARTES',
@@ -78,16 +84,18 @@ String obtenerDiaActual() {
     6: 'SABADO',
     7: 'DOMINGO'
   };
-  return dias[now.weekday]!;
+  return dias[fecha.weekday]!;
 }
 
 final cursoControllerProvider = StateNotifierProvider<CursoController, AsyncValue<Map<String, List<Map<String, dynamic>>>>>(
         (ref) => CursoController(CursoService())
 );
 
-final selectedDayProvider = StateProvider<String>((ref) => obtenerDiaActual());
+final selectedDayProvider = StateProvider<String>((ref) => obtenerDiaDeSemana(DateTime.now()));
 
-final searchControllerProvider = StateNotifierProvider<SearchController, SearchState>((ref) => SearchController());
+final searchControllerProvider = StateNotifierProvider<SearchController, SearchState>(
+        (ref) => SearchController()
+);
 
 final cursosDelDiaProvider = Provider<List<Map<String, dynamic>>>((ref) {
   final cursosAsync = ref.watch(cursoControllerProvider);
@@ -145,9 +153,12 @@ class AulasLibresController extends StateNotifier<AsyncValue<List<Map<String, St
   Future<void> cargarAulasLibres(String dia) async {
     try {
       state = const AsyncValue.loading();
+      AppLogger.log('Cargando aulas libres para el día: $dia', prefix: 'AULAS_CONTROLLER:');
       final aulasLibres = await _cursoService.getAulasLibresPorDia(dia);
       state = AsyncValue.data(aulasLibres);
+      AppLogger.log('Aulas libres cargadas exitosamente', prefix: 'AULAS_CONTROLLER:');
     } catch (e) {
+      AppLogger.log('Error al cargar aulas libres: $e', prefix: 'AULAS_CONTROLLER:');
       state = AsyncValue.error(e, StackTrace.current);
     }
   }

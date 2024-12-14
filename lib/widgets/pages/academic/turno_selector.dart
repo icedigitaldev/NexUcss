@@ -2,11 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import '../../../utils/logger.dart';
 import 'dropdown.dart';
 
 class TurnoSelector extends StatefulWidget {
   final Function(String) onTurnoChanged;
-  const TurnoSelector({super.key, required this.onTurnoChanged});
+  final Function(DateTime) onDateChanged;
+
+  const TurnoSelector({
+    super.key,
+    required this.onTurnoChanged,
+    required this.onDateChanged,
+  });
 
   @override
   State<TurnoSelector> createState() => _TurnoSelectorState();
@@ -25,16 +32,23 @@ class _TurnoSelectorState extends State<TurnoSelector> {
     _initializeDate();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       widget.onTurnoChanged(selectedValue);
+      widget.onDateChanged(selectedDate);
     });
+    AppLogger.log('TurnoSelector inicializado', prefix: 'TURNO_SELECTOR:');
   }
 
   Future<void> _initializeDate() async {
-    Intl.defaultLocale = 'es';
-    await initializeDateFormatting('es');
-    if (mounted) {
-      setState(() {
-        formattedDate = _getFormattedDate(selectedDate);
-      });
+    try {
+      Intl.defaultLocale = 'es';
+      await initializeDateFormatting('es');
+      if (mounted) {
+        setState(() {
+          formattedDate = _getFormattedDate(selectedDate);
+        });
+      }
+      AppLogger.log('Fecha inicializada: $formattedDate', prefix: 'TURNO_SELECTOR:');
+    } catch (e) {
+      AppLogger.log('Error al inicializar fecha: $e', prefix: 'TURNO_SELECTOR:');
     }
   }
 
@@ -62,13 +76,17 @@ class _TurnoSelectorState extends State<TurnoSelector> {
           ),
           child: CalendarDatePicker(
             initialDate: selectedDate,
-            firstDate: DateTime.now(),
-            lastDate: DateTime.now().add(const Duration(days: 365 * 10)),
+            // Establecer la fecha inicial al primer día del año actual
+            firstDate: DateTime(DateTime.now().year, 1, 1),
+            // Establecer la fecha final al último día del año actual
+            lastDate: DateTime(DateTime.now().year, 12, 31),
             onDateChanged: (date) {
               setState(() {
                 selectedDate = date;
                 formattedDate = _getFormattedDate(date);
               });
+              widget.onDateChanged(date);
+              AppLogger.log('Nueva fecha seleccionada: $formattedDate', prefix: 'TURNO_SELECTOR:');
               Navigator.pop(context);
             },
           ),
@@ -92,15 +110,18 @@ class _TurnoSelectorState extends State<TurnoSelector> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              GestureDetector(
-                onTap: _showDatePicker,
-                child: Text(
-                  formattedDate,
-                  style: GoogleFonts.poppins(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                    letterSpacing: -0.36,
+              Expanded(
+                child: GestureDetector(
+                  onTap: _showDatePicker,
+                  child: Text(
+                    formattedDate,
+                    style: GoogleFonts.poppins(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                      letterSpacing: -0.36,
+                    ),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ),
@@ -111,6 +132,7 @@ class _TurnoSelectorState extends State<TurnoSelector> {
                   if (value != null) {
                     setState(() => selectedValue = value);
                     widget.onTurnoChanged(value);
+                    AppLogger.log('Nuevo turno seleccionado: $value', prefix: 'TURNO_SELECTOR:');
                   }
                 },
               ),
@@ -119,6 +141,12 @@ class _TurnoSelectorState extends State<TurnoSelector> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    AppLogger.log('Disposing TurnoSelector', prefix: 'TURNO_SELECTOR:');
+    super.dispose();
   }
 }
 

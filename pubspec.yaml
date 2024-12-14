@@ -1,7 +1,7 @@
 name: nexucss
 description: " "
 publish_to: 'none'
-version: 1.5.5+8
+version: 1.5.8+9
 
 environment:
   sdk: ^3.5.3
@@ -19,6 +19,8 @@ dependencies:
   shared_preferences: ^2.3.3
   url_launcher: ^6.3.1
   flutter_secure_storage: ^9.2.2
+  vimeo_player_flutter: ^0.1.0
+  flutter_hooks: ^0.20.5
 
 dev_dependencies:
   flutter_test:

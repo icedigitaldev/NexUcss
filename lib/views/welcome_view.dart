@@ -2,10 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../utils/logger.dart';
-
-const primaryColor = Color(0xff545f70);
-const secondaryColor = Colors.white;
-const shadowColor = Color(0x3f000000);
+import '../views/condition_view.dart';
 
 class WelcomeView extends StatefulWidget {
   const WelcomeView({super.key});
@@ -35,6 +32,13 @@ class _WelcomeViewState extends State<WelcomeView> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(0),
+        child: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0,
+        ),
+      ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -93,7 +97,12 @@ class _WelcomeViewState extends State<WelcomeView> {
                 ),
                 TextButton(
                   onPressed: () {
-                    Navigator.pushNamed(context, '/condition');
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ConditionView(showBackButton: false),
+                      ),
+                    );
                   },
                   child: const Text(
                     'Términos y condiciones',

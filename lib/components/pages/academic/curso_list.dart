@@ -3,14 +3,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../controllers/curso_controller.dart';
 import '../../../controllers/course_status_controller.dart';
 import '../../../widgets/pages/academic/curso_card.dart';
+import '../../../utils/logger.dart';
 import 'add_attendance.dart';
 
 class CursoList extends ConsumerWidget {
   final String? selectedHorario;
+  final DateTime selectedDate;
 
   const CursoList({
     super.key,
     this.selectedHorario,
+    required this.selectedDate,
   });
 
   @override
@@ -18,16 +21,48 @@ class CursoList extends ConsumerWidget {
     final cursosAsync = ref.watch(cursoControllerProvider);
     final searchQuery = ref.watch(searchControllerProvider).query;
 
+    // Actualizar el día seleccionado usando un microtask
+    Future.microtask(() {
+      ref.read(selectedDayProvider.notifier).state = obtenerDiaDeSemana(selectedDate);
+    });
+
+    AppLogger.log(
+        'Construyendo CursoList - Horario: $selectedHorario, Fecha: $selectedDate',
+        prefix: 'CURSO_LIST:'
+    );
+
     return cursosAsync.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, stack) => Center(child: Text('Error: $error')),
+      loading: () => const Center(
+        child: CircularProgressIndicator(
+          valueColor: AlwaysStoppedAnimation<Color>(Colors.deepPurple),
+        ),
+      ),
+      error: (error, stack) {
+        AppLogger.log('Error al cargar cursos: $error', prefix: 'CURSO_LIST:');
+        return Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error_outline, size: 48, color: Colors.red),
+              const SizedBox(height: 16),
+              Text(
+                'Error al cargar los cursos\n$error',
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: Colors.red),
+              ),
+            ],
+          ),
+        );
+      },
       data: (_) {
         final cursos = ref.watch(cursosFiltradosPorHoraProvider(selectedHorario));
 
         if (cursos.isEmpty) {
           return RefreshIndicator(
+            color: Colors.deepPurple,
             backgroundColor: Colors.white,
             onRefresh: () async {
+              AppLogger.log('Refrescando lista de cursos', prefix: 'CURSO_LIST:');
               return await ref.read(cursoControllerProvider.notifier).refresh();
             },
             child: ListView(
@@ -36,10 +71,26 @@ class CursoList extends ConsumerWidget {
                 SizedBox(
                   height: MediaQuery.of(context).size.height * 0.7,
                   child: Center(
-                    child: Text(
-                      searchQuery.isEmpty
-                          ? 'No hay cursos disponibles en este horario'
-                          : 'No se encontraron resultados para "$searchQuery"',
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(
+                          Icons.calendar_today_outlined,
+                          size: 48,
+                          color: Colors.grey,
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          searchQuery.isEmpty
+                              ? 'No hay cursos disponibles en este horario'
+                              : 'No se encontraron resultados para "$searchQuery"',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.grey,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -49,8 +100,10 @@ class CursoList extends ConsumerWidget {
         }
 
         return RefreshIndicator(
+          color: Colors.deepPurple,
           backgroundColor: Colors.white,
           onRefresh: () async {
+            AppLogger.log('Refrescando lista de cursos', prefix: 'CURSO_LIST:');
             return await ref.read(cursoControllerProvider.notifier).refresh();
           },
           child: ListView.builder(
@@ -66,6 +119,10 @@ class CursoList extends ConsumerWidget {
                 padding: const EdgeInsets.only(bottom: 10),
                 child: GestureDetector(
                   onTap: () {
+                    AppLogger.log(
+                        'Navegando a AddAttendance para curso: ${curso['curso']}',
+                        prefix: 'CURSO_LIST:'
+                    );
                     Navigator.of(context).push(MaterialPageRoute(
                       builder: (context) => AddAttendance(
                         cursoNombre: curso['curso']?.toString() ?? '',

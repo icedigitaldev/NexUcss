@@ -1,184 +1,203 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-
 import '../../views/condition_view.dart';
-import '../../views/coordinadores_view.dart';
-import '../../views/home_view.dart ';
+import '../../views/home_view.dart';
 import '../../views/welcome_view.dart';
 import '../../widgets/pages/profile/profile_option.dart';
-
 
 class ProfileView extends StatelessWidget {
   const ProfileView({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final scale = size.height < 700 ? 0.8 : 1.0;
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(64),
-        child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          decoration: const BoxDecoration(
-            color: Colors.white,
-          ),
-          child: SafeArea(
-            child: AppBar(
-              backgroundColor: Colors.white,
-              elevation: 0,
-              centerTitle: true,
-              leading: GestureDetector(
-                onTap: () => Navigator.of(context).pop(),
-                child: Container(
-                  width: 50,
-                  height: 50,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Color(0xFFEef1F4),
-                  ),
-                  child: Center(
-                    child: Icon(
-                      Icons.arrow_back,
-                      color: Color(0xFF545F71),
-                      size: 20,
-                    ),
-                  ),
-                ),
-              ),
-              title: Text(
-                'Perfil',
-                style: GoogleFonts.poppins(
-                  fontSize: 22,
-                  color: const Color(0xff545f70),
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
+        preferredSize: const Size.fromHeight(0),
+        child: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          systemOverlayStyle: const SystemUiOverlayStyle(
+            statusBarColor: Colors.white,
+            statusBarIconBrightness: Brightness.dark,
           ),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
+      body: SafeArea(
         child: Column(
           children: [
-            SizedBox(height: 26),
-            CircleAvatar(
-              radius: 80,
-              backgroundImage: AssetImage('assets/images/profile_image.png'), // Imagen de perfil
-            ),
-            SizedBox(height: 16),
-            Text(
-              'Hola, Bienvenido',
-              style: GoogleFonts.poppins(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Color(0xff545f70),
-              ),
-            ),
-            SizedBox(height: 36),
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
-              decoration: BoxDecoration(
-                color: Color(0xFFEFF1F4),
-                borderRadius: BorderRadius.circular(24),
-              ),
-              child: Column(
-                children: [
-                  ProfileOption(
-                    icon: Icons.receipt_long_outlined,
-                    title: 'Reportes',
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => HomeView(initialIndex: 2),
+            Expanded(
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 20 * scale),
+                  child: Column(
+                    children: [
+                      SizedBox(height: 10 * scale),
+                      Row(
+                        children: [
+                          GestureDetector(
+                            onTap: () => Navigator.of(context).pop(),
+                            child: Container(
+                              width: 50 * scale,
+                              height: 50 * scale,
+                              decoration: const BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Color(0xFFEef1F4),
+                              ),
+                              child: const Center(
+                                child: Icon(
+                                  Icons.arrow_back,
+                                  color: Color(0xFF545F71),
+                                  size: 20,
+                                ),
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: Center(
+                              child: Text(
+                                'Perfil',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 22 * scale,
+                                  color: const Color(0xff545f70),
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                          SizedBox(width: 50 * scale),
+                        ],
+                      ),
+                      SizedBox(height: 20 * scale),
+                      CircleAvatar(
+                        radius: 75 * scale,
+                        backgroundImage: const AssetImage('assets/images/profile_image.png'),
+                      ),
+                      SizedBox(height: 16 * scale),
+                      Text(
+                        'Hola, Bienvenido',
+                        style: GoogleFonts.poppins(
+                          fontSize: 24 * scale,
+                          fontWeight: FontWeight.bold,
+                          color: const Color(0xff545f70),
                         ),
-                      );
-                    },
-                  ),
-                  Divider(),
-                  ProfileOption(
-                    icon: Icons.edit_note_outlined,
-                    title: 'Aplazados',
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => HomeView(initialIndex: 1),
+                      ),
+                      SizedBox(height: 26 * scale),
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: 10 * scale, vertical: 15 * scale),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFEFF1F4),
+                          borderRadius: BorderRadius.circular(24),
                         ),
-                      );
-                    },
-                  ),
-                  Divider(),
-                  ProfileOption(
-                    icon: Icons.play_circle_outline,
-                    title: 'Tutorial',
-                    onTap: () => Navigator.pushNamed(context, '/tutorial'),
-                  ),
-                  /*
-                  Divider(),
-                  ProfileOption(
-                    icon: Icons.group_outlined,
-                    title: 'Coordinadores',
-                    onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(builder: (context) => CoordinadoresView()),
-                      );
-                    },
-                  ),
-                   */
-
-                  Divider(),
-                  ProfileOption(
-                    icon: Icons.article,
-                    title: 'Términos y Condiciones',
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ConditionView(showBackButton: true),
+                        child: Column(
+                          children: [
+                            ProfileOption(
+                              icon: Icons.receipt_long_outlined,
+                              title: 'Reportes',
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const HomeView(initialIndex: 2),
+                                  ),
+                                );
+                              },
+                            ),
+                            const Divider(),
+                            ProfileOption(
+                              icon: Icons.edit_note_outlined,
+                              title: 'Aplazados',
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const HomeView(initialIndex: 1),
+                                  ),
+                                );
+                              },
+                            ),
+                            const Divider(),
+                            ProfileOption(
+                              icon: Icons.play_circle_outline,
+                              title: 'Tutorial',
+                              onTap: () => Navigator.pushNamed(context, '/tutorial'),
+                            ),
+                            const Divider(),
+                            ProfileOption(
+                              icon: Icons.article,
+                              title: 'Términos y Condiciones',
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const ConditionView(showBackButton: true),
+                                  ),
+                                );
+                              },
+                            ),
+                            const Divider(),
+                            ProfileOption(
+                              icon: Icons.lock_outline,
+                              title: 'Cambiar PIN',
+                              onTap: () {},
+                            ),
+                          ],
                         ),
-                      );
-                    },
+                      ),
+                    ],
                   ),
-                  Divider(),
-                  ProfileOption(
-                    icon: Icons.lock_outline,
-                    title: 'Cambiar PIN',
-                    onTap: () {
-                      // Navegar a la página de Cambiar PIN
-                    },
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(height: 30),
-            Container(
-              decoration: BoxDecoration(
-                color: Color(0xFFEFF1F4),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: ListTile(
-                leading: Icon(
-                  Icons.logout,
-                  color: Colors.red,
                 ),
-                title: Text(
-                  'Cerrar Sesión',
-                  style: GoogleFonts.poppins(
-                    fontSize: 16,
-                    color: Colors.red,
-                    fontWeight: FontWeight.w600,
-                  ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFEFF1F4),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => WelcomeView(),
+                child: InkWell(
+                  onTap: () {
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const WelcomeView(),
+                      ),
+                          (route) => false,
+                    );
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 18),
+                    child: Row(
+                      children: [
+                        const SizedBox(width: 16),
+                        const Icon(
+                          Icons.logout,
+                          color: Colors.red,
+                          size: 26,
+                        ),
+                        Expanded(
+                          child: Center(
+                            child: Text(
+                              'Cerrar Sesión',
+                              style: GoogleFonts.poppins(
+                                fontSize: 16 * scale,
+                                color: Colors.red,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 40),
+                      ],
                     ),
-                  );
-                },
+                  ),
+                ),
               ),
             ),
           ],
